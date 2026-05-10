@@ -1,0 +1,27 @@
+# 颜色检测 HSV 阈值参数
+# 在实机上使用 trackbar 调试后填入实际值
+
+# 红色 (HSV 色环中红色在0和180两端)
+red:
+  lower_1: [0, 70, 50]
+  upper_1: [10, 255, 255]
+  lower_2: [170, 70, 50]
+  upper_2: [180, 255, 255]
+
+# 绿色
+green:
+  lower: [35, 70, 50]
+  upper: [85, 255, 255]
+
+# 蓝色
+blue:
+  lower: [100, 70, 50]
+  upper: [130, 255, 255]
+
+# 处理参数
+min_contour_area: 500      # 最小连通域面积 (像素)
+max_contour_area: 100000   # 最大连通域面积 (像素)
+camera_topic: "/camera/color/image_raw"
+depth_topic: "/camera/depth/image_rect_raw"
+camera_info_topic: "/camera/color/camera_info"
+publish_rate: 10           # Hz

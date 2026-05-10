@@ -1,0 +1,206 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <world name="competition">
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <physics name="default_physics" default="true" type="ode">
+      <gravity>0 0 -9.81</gravity>
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
+    </physics>
+
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.8 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <!-- Competition arena (perimeter walls + floor + zone labels) -->
+    <include>
+      <uri>model://competition_arena</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    <!-- ======== Internal walls (from map.yaml) ======== -->
+    <!-- Wall 2: gate 2 side wall, at x=396~404cm, y=315~385cm, z=135~150cm -->
+    <model name="wall_segment_2">
+      <static>true</static>
+      <link name="body">
+        <collision name="collision">
+          <geometry><box><size>0.08 0.70 0.15</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.08 0.70 0.15</size></box></geometry>
+          <material><script>Gazebo/White</script></material>
+        </visual>
+      </link>
+      <pose>4.00 3.50 1.425 0 0 0</pose>
+    </model>
+
+    <!-- Wall 3: gate 1 door frame, at x=129cm, y=410cm, z=65~135cm -->
+    <model name="wall_segment_3">
+      <static>true</static>
+      <link name="body">
+        <collision name="collision">
+          <geometry><box><size>0.05 0.05 0.70</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.05 0.05 0.70</size></box></geometry>
+          <material><script>Gazebo/White</script></material>
+        </visual>
+      </link>
+      <pose>1.29 4.10 1.00 0 0 0</pose>
+    </model>
+
+    <!-- ======== Obstacles (centers of YAML ranges) ======== -->
+    <!-- O1: x[60,100], y[110,150] → center (80, 130) cm -->
+    <include>
+      <uri>model://obstacle_box</uri>
+      <name>obstacle_1</name>
+      <pose>0.80 1.30 0 0 0 0</pose>
+    </include>
+
+    <!-- O2: x[160,200], y[90,130] → center (180, 110) cm (dynamic) -->
+    <include>
+      <uri>model://obstacle_box</uri>
+      <name>obstacle_2</name>
+      <pose>1.80 1.10 0 0 0 0</pose>
+    </include>
+
+    <!-- O3: x[220,260], y[330,370] → center (240, 350) cm -->
+    <include>
+      <uri>model://obstacle_box</uri>
+      <name>obstacle_3</name>
+      <pose>2.40 3.50 0 0 0 0</pose>
+    </include>
+
+    <!-- O4: x[340,380], y[200,240] → center (360, 220) cm -->
+    <include>
+      <uri>model://obstacle_box</uri>
+      <name>obstacle_4</name>
+      <pose>3.60 2.20 0 0 0 0</pose>
+    </include>
+
+    <!-- O5: x[420,460], y[350,390] → center (440, 370) cm -->
+    <include>
+      <uri>model://obstacle_box</uri>
+      <name>obstacle_5</name>
+      <pose>4.40 3.70 0 0 0 0</pose>
+    </include>
+
+    <!-- O6: x[200,240], y[410,450] → center (220, 430) cm (dynamic) -->
+    <include>
+      <uri>model://obstacle_box</uri>
+      <name>obstacle_6</name>
+      <pose>2.20 4.30 0 0 0 0</pose>
+    </include>
+
+    <!-- ======== Gates ======== -->
+    <!-- Gate 1: near A zone, opens toward +Y (no rotation) -->
+    <include>
+      <uri>model://gate</uri>
+      <name>gate_1</name>
+      <pose>1.25 4.10 0 0 0 0</pose>
+    </include>
+
+    <!-- Gate 2: opens toward +X (rotate 90° around Z) -->
+    <include>
+      <uri>model://gate</uri>
+      <name>gate_2</name>
+      <pose>4.00 3.85 0 0 0 1.5708</pose>
+    </include>
+
+    <!-- ======== Landing pads (inline for proper colors) ======== -->
+    <model name="pad_red">
+      <static>true</static>
+      <link name="pad">
+        <visual name="visual">
+          <geometry><box><size>0.5 0.5 0.02</size></box></geometry>
+          <material><ambient>0.9 0.1 0.1 1</ambient><diffuse>0.9 0.1 0.1 1</diffuse></material>
+        </visual>
+        <collision name="collision">
+          <geometry><box><size>0.5 0.5 0.02</size></box></geometry>
+        </collision>
+      </link>
+      <pose>4.45 1.00 0.01 0 0 0</pose>
+    </model>
+
+    <model name="pad_green">
+      <static>true</static>
+      <link name="pad">
+        <visual name="visual">
+          <geometry><box><size>0.5 0.5 0.02</size></box></geometry>
+          <material><ambient>0.1 0.9 0.1 1</ambient><diffuse>0.1 0.9 0.1 1</diffuse></material>
+        </visual>
+        <collision name="collision">
+          <geometry><box><size>0.5 0.5 0.02</size></box></geometry>
+        </collision>
+      </link>
+      <pose>5.00 1.90 0.01 0 0 0</pose>
+    </model>
+
+    <model name="pad_blue">
+      <static>true</static>
+      <link name="pad">
+        <visual name="visual">
+          <geometry><box><size>0.5 0.5 0.02</size></box></geometry>
+          <material><ambient>0.1 0.1 0.9 1</ambient><diffuse>0.1 0.1 0.9 1</diffuse></material>
+        </visual>
+        <collision name="collision">
+          <geometry><box><size>0.5 0.5 0.02</size></box></geometry>
+        </collision>
+      </link>
+      <pose>5.45 1.00 0.01 0 0 0</pose>
+    </model>
+
+    <!-- ======== Color detection test markers (A zone) ======== -->
+    <model name="target_red">
+      <static>true</static>
+      <link name="body">
+        <visual name="visual">
+          <geometry><box><size>0.20 0.20 0.20</size></box></geometry>
+          <material><ambient>0.9 0.1 0.1 1</ambient><diffuse>0.9 0.1 0.1 1</diffuse></material>
+        </visual>
+        <collision name="collision">
+          <geometry><box><size>0.20 0.20 0.20</size></box></geometry>
+        </collision>
+      </link>
+      <pose>1.30 3.80 0.10 0 0 0</pose>
+    </model>
+
+    <model name="target_green">
+      <static>true</static>
+      <link name="body">
+        <visual name="visual">
+          <geometry><box><size>0.20 0.20 0.20</size></box></geometry>
+          <material><ambient>0.1 0.9 0.1 1</ambient><diffuse>0.1 0.9 0.1 1</diffuse></material>
+        </visual>
+        <collision name="collision">
+          <geometry><box><size>0.20 0.20 0.20</size></box></geometry>
+        </collision>
+      </link>
+      <pose>1.30 4.20 0.10 0 0 0</pose>
+    </model>
+
+    <model name="target_blue">
+      <static>true</static>
+      <link name="body">
+        <visual name="visual">
+          <geometry><box><size>0.20 0.20 0.20</size></box></geometry>
+          <material><ambient>0.1 0.1 0.9 1</ambient><diffuse>0.1 0.1 0.9 1</diffuse></material>
+        </visual>
+        <collision name="collision">
+          <geometry><box><size>0.20 0.20 0.20</size></box></geometry>
+        </collision>
+      </link>
+      <pose>1.30 4.00 0.10 0 0 0</pose>
+    </model>
+  </world>
+</sdf>

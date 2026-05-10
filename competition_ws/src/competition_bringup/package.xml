@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>competition_bringup</name>
+  <version>1.0.0</version>
+  <description>浙江省大学生机器人竞赛 — 空中机器人邀请赛 地图与启动配置</description>
+  <maintainer email="team@example.com">competition_team</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>roscpp</depend>
+  <depend>yaml-cpp</depend>
+</package>

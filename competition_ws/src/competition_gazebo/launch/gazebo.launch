@@ -1,0 +1,13 @@
+<launch>
+  <!-- Gazebo world: 空中机器人竞赛场地 -->
+  <arg name="paused"  default="false"/>
+  <arg name="gui"     default="true"/>
+  <arg name="verbose" default="false"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find competition_gazebo)/worlds/competition.world"/>
+    <arg name="paused"  value="$(arg paused)"/>
+    <arg name="gui"     value="$(arg gui)"/>
+    <arg name="verbose" value="$(arg verbose)"/>
+  </include>
+</launch>

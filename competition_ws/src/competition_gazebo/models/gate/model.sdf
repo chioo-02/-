@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="gate">
+    <static>true</static>
+    <!-- Left pillar -->
+    <link name="left_pillar">
+      <collision name="left_pillar_collision">
+        <geometry><box><size>0.1 0.1 1.5</size></box></geometry>
+      </collision>
+      <visual name="left_pillar_visual">
+        <geometry><box><size>0.1 0.1 1.5</size></box></geometry>
+        <material><ambient>0.9 0.9 0 1</ambient><diffuse>0.9 0.9 0 1</diffuse></material>
+      </visual>
+      <pose>-0.35 0 0.75 0 0 0</pose>
+    </link>
+    <!-- Right pillar -->
+    <link name="right_pillar">
+      <collision name="right_pillar_collision">
+        <geometry><box><size>0.1 0.1 1.5</size></box></geometry>
+      </collision>
+      <visual name="right_pillar_visual">
+        <geometry><box><size>0.1 0.1 1.5</size></box></geometry>
+        <material><ambient>0.9 0.9 0 1</ambient><diffuse>0.9 0.9 0 1</diffuse></material>
+      </visual>
+      <pose>0.35 0 0.75 0 0 0</pose>
+    </link>
+    <!-- Top crossbar -->
+    <link name="crossbar">
+      <collision name="crossbar_collision">
+        <geometry><box><size>0.8 0.1 0.1</size></box></geometry>
+      </collision>
+      <visual name="crossbar_visual">
+        <geometry><box><size>0.8 0.1 0.1</size></box></geometry>
+        <material><ambient>0.9 0.9 0 1</ambient><diffuse>0.9 0.9 0 1</diffuse></material>
+      </visual>
+      <pose>0 0 1.1 0 0 0</pose>
+    </link>
+  </model>
+</sdf>

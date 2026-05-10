@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>mission_node</name>
+  <version>1.0.0</version>
+  <description>比赛任务状态机 — 状态编排与飞控接口</description>
+  <maintainer email="team@example.com">competition_team</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>roscpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>mavros_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>std_srvs</depend>
+</package>

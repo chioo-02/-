@@ -1,0 +1,201 @@
+# ============================================================================
+# 浙江省第十届大学生机器人竞赛 — 空中机器人邀请赛 地图配置
+# 坐标系: X向右(0~600cm), Y向上(0~500cm), Z向上(0~250cm)
+# 单位: cm (与STL/3MF模型坐标一致)
+# 来源: 场地示意模型.stl + 3dmodel.model
+# ============================================================================
+
+# --- 场地基本信息 ---
+arena:
+  length_x: 600     # 长 (cm)
+  width_y: 500      # 宽 (cm)
+  height_z: 250     # 高 (cm)
+  wall_height: 150  # 围墙高度 (cm)
+  wall_bottom: 30   # 围墙底部离地高度 (cm) — 底部镂空
+
+# --- 关键区域 ---
+zones:
+  takeoff:          # H区域 — 起飞区
+    label: "H"
+    center: [30, 30]
+    size: [50, 50]  # 50x50cm KT板
+    desc: "左下角起飞区"
+
+  zone_A:           # A区域 — 目标识别与抓取
+    label: "A"
+    center: [130, 400]
+    desc: "左侧上部，颜色识别靶+抓取球"
+
+  zone_B:           # B区域 — 投放与降落
+    label: "B"
+    center: [500, 130]
+    desc: "右侧，含3个RGB降落区"
+
+# --- 航点序列（保底流程使用）---
+waypoints:
+  hover_height: 100  # 默认巡航高度 (cm)
+
+  takeoff:          # 起飞悬停点
+    x: 30
+    y: 30
+    z: 80
+    desc: "H区域上方"
+
+  nav_to_a:         # 起点→A导航
+    via:            # 中间绕行点（避开挡板1：y=96处横墙x=0~300）
+      - x: 30
+        y: 200
+        z: 100
+        desc: "先爬升到安全高度，向右飞绕开挡板"
+    target:
+      x: 130
+      y: 400
+      z: 100
+      desc: "A区域悬停点"
+
+  detect_hover:     # 颜色识别悬停
+    x: 130
+    y: 400
+    z: 100
+    desc: "A区域识别颜色"
+
+  nav_to_b:         # A→B导航
+    via:
+      - x: 300
+        y: 250
+        z: 100
+        desc: "场地中部中转点（绕开障碍物）"
+    target:
+      x: 500
+      y: 130
+      z: 100
+      desc: "B区域悬停点"
+
+  landing_R:        # 红色降落区
+    x: 445
+    y: 100
+    z: 0
+    desc: "B区域左侧降落区"
+
+  landing_G:        # 绿色降落区
+    x: 500
+    y: 190
+    z: 0
+    desc: "B区域中间降落区"
+
+  landing_B:        # 蓝色降落区
+    x: 545
+    y: 100
+    z: 0
+    desc: "B区域右侧降落区"
+
+# --- 颜色与降落区的对应关系 ---
+color_zones:
+  R:
+    landing: "landing_R"
+    center: [445, 100]
+    score_x: 445    # 得分框X
+    score_y: 100    # 得分框Y
+  G:
+    landing: "landing_G"
+    center: [500, 190]
+    score_x: 500
+    score_y: 190
+  B:
+    landing: "landing_B"
+    center: [545, 100]
+    score_x: 545
+    score_y: 100
+
+# --- A区域抓取球 ---
+ball:
+  x: 62.5
+  y: 387.5
+  z: 100        # 离地1m
+  diameter: 6   # 直径6cm
+  desc: "白色3D打印小球，离靶心50cm处"
+
+# --- 障碍物（O1-O6，随机选取最多5个）---
+obstacles:
+  default_size: [40, 40, 160]  # 宽x深x高 cm
+
+  possible_positions:   # 6个候选位置
+    O1:
+      x_range: [60, 100]
+      y_range: [110, 150]
+      type: "static"
+      desc: "左下区域"
+    O2:
+      x_range: [160, 200]
+      y_range: [90, 130]
+      type: "dynamic"   # ≤0.5m/s 往复直线运动
+      desc: "中左区域 — 动态"
+    O3:
+      x_range: [220, 260]
+      y_range: [330, 370]
+      type: "static"
+      desc: "中上区域"
+    O4:
+      x_range: [340, 380]
+      y_range: [200, 240]
+      type: "static"
+      desc: "场地中部"
+    O5:
+      x_range: [420, 460]
+      y_range: [350, 390]
+      type: "static"
+      desc: "右上区域"
+    O6:
+      x_range: [200, 240]
+      y_range: [410, 450]
+      type: "dynamic"   # ≤0.5m/s 往复直线运动
+      desc: "左边界 — 动态"
+
+# --- 竞速门 ---
+gates:
+  gate1:
+    center: [125, 410]
+    opening_z_min: 65
+    opening_z_max: 135
+    opening_size: [70, 70]   # 宽x高 cm
+    board_size: [100, 100]   # KT板尺寸 cm
+    checker_size: 4           # 棋盘格尺寸 cm
+    desc: "竞速门1 — 位于A区右上方"
+  gate2:
+    center: [400, 385]
+    opening_z_min: 65
+    opening_z_max: 135
+    opening_size: [70, 70]
+    board_size: [100, 100]
+    checker_size: 4
+    desc: "竞速门2 — 位于右上区域"
+
+# --- 内部挡板 ---
+walls:
+  wall1:
+    along: "x"              # 沿x方向
+    x_range: [0, 300]
+    y: 96
+    z_range: [30, 150]
+    desc: "横隔左侧区域的挡板"
+
+  wall2:
+    along: "x"
+    x_range: [396, 404]
+    y_range: [315, 385]
+    z_range: [135, 150]
+    desc: "竞速门2旁边墙壁"
+
+  wall3:
+    along: "y"
+    x: 129
+    y_range: [410, 410]
+    z_range: [65, 135]
+    desc: "竞速门1门框墙"
+
+# --- 安全参数 ---
+safety:
+  obstacle_clearance: 30    # 距障碍物安全距离 (cm)
+  gate_clearance: 15        # 穿越竞速门时的余量 (cm)
+  wall_avoid_distance: 40   # 避墙距离 (cm)
+  max_flight_time: 900      # 最长飞行时间 (秒) = 15分钟

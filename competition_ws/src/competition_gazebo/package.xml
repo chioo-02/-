@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>competition_gazebo</name>
+  <version>1.0.0</version>
+  <description>空中机器人竞赛 Gazebo 仿真场地与模型</description>
+  <maintainer email="team@example.com">competition_team</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>gazebo_ros</depend>
+</package>

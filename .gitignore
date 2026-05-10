@@ -1,0 +1,50 @@
+# Third-party libraries / pre-existing projects
+3rd_party/
+Fast-Drone-250-master/
+PX4-SITL_gazebo-classic-main/
+ZheJiangShengSai-9th-Aerial-robot-main/
+ego-planner-master/
+ego-planner-swarm-master/
+ceres-solver-1.14.0/
+
+# Build artifacts
+build/
+devel/
+install/
+*.o
+*.obj
+*.zip
+*.tar.gz
+
+# Large binary / model files
+*.stl
+*.step
+*.png
+*.jpg
+*.iso
+*.pdf
+3dmodel.model
+
+# Extracted rules text
+competition_rules.txt
+rules_utf8.txt
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ROS
+*.bag
+
+# Logs
+*.log
