@@ -109,6 +109,8 @@ private:
   void setState(TaskState new_state, const std::string& reason = "");
   bool checkTimeout(ros::Time start, double timeout);
 
+  void loadMissionConfig();
+
   // ----- 飞控接口 -----
   bool arm();
   bool setOffboardMode();

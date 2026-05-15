@@ -30,6 +30,10 @@ MissionFSM::MissionFSM(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 
 bool MissionFSM::init() {
   setState(TaskState::IDLE, "Initialized");
+
+  // 从 param server 加载 map.yaml 配置
+  loadMissionConfig();
+
   ROS_INFO("[Mission] FSM initialized. Waiting for mavros connection...");
 
   // 等待 mavros 连接
@@ -478,6 +482,57 @@ void MissionFSM::handleEmergencyLand() {
 
 void MissionFSM::handleFinish() {
   ROS_INFO("[Mission] FINISH — 任务结束");
+}
+
+// ==================== 配置加载 ====================
+
+void MissionFSM::loadMissionConfig() {
+  // 从层级 param 读取 (由 launch 的 rosparam load map.yaml 注入)
+  // 飞行参数（直接参数，可被 launch 覆盖）
+  pnh_.param("speed",            config_.speed,            0.3);
+  pnh_.param("tolerance",        config_.tolerance,        0.2);
+  pnh_.param("hover_duration",   config_.hover_duration,   6.0);
+  pnh_.param("detect_timeout",   config_.detect_timeout,   30.0);
+
+  auto readWP = [&](const std::string& path, double& x, double& y, double& z) {
+    pnh_.param(path + "/x", x, x);
+    pnh_.param(path + "/y", y, y);
+    pnh_.param(path + "/z", z, z);
+  };
+
+  // 从 map.yaml 层级路径读取航点
+  readWP("waypoints/takeoff",    config_.takeoff_x, config_.takeoff_y, config_.takeoff_z);
+  pnh_.param("waypoints/hover_height", config_.hover_height, 100.0);
+
+  readWP("waypoints/nav_to_a/target", config_.a_x, config_.a_y, config_.a_z);
+  readWP("waypoints/nav_to_b/target", config_.b_x, config_.b_y, config_.b_z);
+
+  // 中间航点：取 via 第一个点
+  double via1_x = config_.via_1_x, via1_y = config_.via_1_y, via1_z = config_.via_1_z;
+  double via2_x = config_.via_2_x, via2_y = config_.via_2_y, via2_z = config_.via_2_z;
+
+  pnh_.param("waypoints/nav_to_a/via/0/x", via1_x, via1_x);
+  pnh_.param("waypoints/nav_to_a/via/0/y", via1_y, via1_y);
+  pnh_.param("waypoints/nav_to_a/via/0/z", via1_z, via1_z);
+  config_.via_1_x = via1_x;
+  config_.via_1_y = via1_y;
+  config_.via_1_z = via1_z;
+
+  pnh_.param("waypoints/nav_to_b/via/0/x", via2_x, via2_x);
+  pnh_.param("waypoints/nav_to_b/via/0/y", via2_y, via2_y);
+  pnh_.param("waypoints/nav_to_b/via/0/z", via2_z, via2_z);
+  config_.via_2_x = via2_x;
+  config_.via_2_y = via2_y;
+  config_.via_2_z = via2_z;
+
+  // 降落区坐标
+  readWP("waypoints/landing_R", config_.land_r_x, config_.land_r_y, config_.land_r_x);
+  readWP("waypoints/landing_G", config_.land_g_x, config_.land_g_y, config_.land_g_y);
+  readWP("waypoints/landing_B", config_.land_b_x, config_.land_b_y, config_.land_b_y);
+
+  ROS_INFO("[Mission] Config loaded — takeoff(%.0f,%.0f,%.0f) A(%.0f,%.0f) B(%.0f,%.0f)",
+           config_.takeoff_x, config_.takeoff_y, config_.takeoff_z,
+           config_.a_x, config_.a_y, config_.b_x, config_.b_y);
 }
 
 // ==================== 状态转换 ====================
