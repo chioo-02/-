@@ -2,7 +2,7 @@
 # 浙江省第十届大学生机器人竞赛 — 空中机器人邀请赛 地图配置
 # 坐标系: X向右(0~600cm), Y向上(0~500cm), Z向上(0~250cm)
 # 单位: cm (与STL/3MF模型坐标一致)
-# 来源: 场地示意模型.stl + 3dmodel.model
+# 规则版本: 20260515 更新
 # ============================================================================
 
 # --- 场地基本信息 ---
@@ -10,8 +10,9 @@ arena:
   length_x: 600     # 长 (cm)
   width_y: 500      # 宽 (cm)
   height_z: 250     # 高 (cm)
-  wall_height: 150  # 围墙高度 (cm)
+  wall_height: 150  # 围墙高度 (cm) — 规则4: 禁止飞越
   wall_bottom: 30   # 围墙底部离地高度 (cm) — 底部镂空
+  net_top: 250      # 防护网顶部高度 (cm) — 木板墙上方防护网延伸至2.5m
 
 # --- 关键区域 ---
 zones:
@@ -115,9 +116,9 @@ ball:
   diameter: 6   # 直径6cm
   desc: "白色3D打印小球，离靶心50cm处"
 
-# --- 障碍物（O1-O6，随机选取最多5个）---
+# --- 障碍物（O1-O6，随机选取最多6个）---
 obstacles:
-  default_size: [40, 40, 160]  # 宽x深x高 cm
+  default_size: [30, 30, 180]  # 宽x深x高 cm (规则2: 0.3m×0.3m×1.8m, 30cm地垫×6层)
 
   possible_positions:   # 6个候选位置
     O1:
@@ -199,3 +200,5 @@ safety:
   gate_clearance: 15        # 穿越竞速门时的余量 (cm)
   wall_avoid_distance: 40   # 避墙距离 (cm)
   max_flight_time: 900      # 最长飞行时间 (秒) = 15分钟
+  max_altitude: 150         # 最大飞行高度 (cm) = 木板墙高度，规则4禁止飞越
+  min_takeoff_height: 80    # 最小起飞悬停高度 (cm) = 规则5要求≥0.8m

@@ -131,6 +131,11 @@ void MissionFSM::handleArming() {
 
 void MissionFSM::handleTakeoff() {
   double takeoff_z_m = config_.takeoff_z / 100.0;  // cm -> m
+  // 规则5: 悬停高度不低于0.8m
+  if (takeoff_z_m < config_.min_takeoff_height) {
+    takeoff_z_m = config_.min_takeoff_height;
+    ROS_WARN("[Mission] takeoff_z 低于规则要求(0.8m)，已自动提升至 %.1f m", takeoff_z_m);
+  }
   ROS_INFO("[Mission] TAKEOFF — 起飞到 %.1f m 高度悬停...", takeoff_z_m);
 
   geometry_msgs::PoseStamped sp;
@@ -226,7 +231,7 @@ void MissionFSM::handleDetectColor() {
       config_.detected_color = color;
       ROS_INFO("[Mission] 检测到颜色: %s", color.c_str());
 
-      // 任务⑦: 在命令行输出颜色
+      // 任务⑥: 在命令行输出颜色
       std::cout << "\n============================================" << std::endl;
       std::cout << "  A处识别颜色: " << color << std::endl;
       std::cout << "============================================\n" << std::endl;
@@ -244,7 +249,7 @@ void MissionFSM::handleDetectColor() {
     ros::Duration(0.5).sleep();
   }
 
-  ROS_INFO("[Mission] 颜色识别输出完成! (任务⑦ +15分)");
+  ROS_INFO("[Mission] 颜色识别输出完成! (任务⑥ +15分)");
 
   // 如果启用了抓取，进入抓取状态
   if (enable_grasp_) {
@@ -369,7 +374,7 @@ void MissionFSM::handleDropAndOutput() {
     ROS_INFO("[Mission] 跳过投放 (未启用抓取)");
   }
 
-  // 任务⑦: 颜色确认输出（已经在上一步输出过了，这里重复确保得分）
+  // 任务⑥: 颜色确认输出（已经在上一步输出过了，这里重复确保得分）
   std::cout << "\n============================================" << std::endl;
   std::cout << "  识别颜色确认: " << color << std::endl;
   std::cout << "  降落目标区域: " << color << std::endl;
@@ -465,7 +470,7 @@ void MissionFSM::handleLanding() {
     ROS_INFO("[Mission] 已解锁(停桨)");
   }
 
-  ROS_INFO("[Mission] 降落完成! (任务⑧ +15分)");
+  ROS_INFO("[Mission] 降落完成! (任务⑦ +15分)");
   setState(TaskState::FINISH, "Mission complete");
 }
 
@@ -493,6 +498,9 @@ void MissionFSM::loadMissionConfig() {
   pnh_.param("tolerance",        config_.tolerance,        0.2);
   pnh_.param("hover_duration",   config_.hover_duration,   6.0);
   pnh_.param("detect_timeout",   config_.detect_timeout,   30.0);
+  // 规则4+5: 飞行限高 + 悬停最低高度
+  pnh_.param("max_altitude",         config_.max_altitude,         1.5);
+  pnh_.param("min_takeoff_height",   config_.min_takeoff_height,   0.8);
 
   auto readWP = [&](const std::string& path, double& x, double& y, double& z) {
     pnh_.param(path + "/x", x, x);
@@ -583,6 +591,11 @@ bool MissionFSM::setOffboardMode() {
 }
 
 bool MissionFSM::flyTo(double x, double y, double z, double speed, double tolerance) {
+  // 规则4: 禁止飞越木板墙 (max_altitude = 1.5m)
+  if (z > config_.max_altitude) {
+    ROS_WARN("[Mission] flyTo 目标高度 %.2fm 超出限高 %.2fm, 已限制", z, config_.max_altitude);
+    z = config_.max_altitude;
+  }
   geometry_msgs::PoseStamped sp;
   sp.pose.position.x = x;
   sp.pose.position.y = y;

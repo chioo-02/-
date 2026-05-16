@@ -17,7 +17,7 @@ def main():
     parser.add_argument("--world", default="competition.world", help="Gazebo world 文件路径")
     parser.add_argument("--map", default="map.yaml", help="map.yaml 路径")
     parser.add_argument("--seed", type=int, default=None, help="随机种子（可复现）")
-    parser.add_argument("--num-obstacles", type=int, default=5, help="障碍物数量 (默认5)")
+    parser.add_argument("--num-obstacles", type=int, default=6, help="障碍物数量 (默认6，规则上限6)")
     args = parser.parse_args()
 
     if args.seed is not None:

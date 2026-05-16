@@ -109,6 +109,10 @@ public:
   // 获取默认巡航高度
   double getCruiseHeight() const { return hover_height_; }
 
+  // 安全限高 (规则4: 禁止飞越木板墙)
+  double getMaxAltitude() const { return max_altitude_ / 100.0; }
+  double getMinTakeoffHeight() const { return min_takeoff_height_ / 100.0; }
+
   // arena bounds in meters (for PX4/mavros, using meters)
   double getArenaLength() const { return length_x_ / 100.0; }
   double getArenaWidth() const { return width_y_ / 100.0; }
@@ -151,6 +155,7 @@ private:
 
   // Safety
   double obstacle_clearance_, gate_clearance_, wall_avoid_dist_;
+  double max_altitude_, min_takeoff_height_;
 };
 
 // ==================== 内联实现 ====================

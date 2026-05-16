@@ -71,6 +71,8 @@ struct MissionConfig {
   double detect_timeout = 30.0;   // 颜色检测超时
   double grasp_timeout = 10.0;    // 抓取超时
   double emergency_timeout = 60.0;// 紧急情况处理时间
+  double max_altitude = 1.5;        // 规则4: 禁止飞越木板墙 (m)
+  double min_takeoff_height = 0.8;  // 规则5: 悬停高度不低于0.8m (m)
 
   // 颜色配置
   std::string detected_color = "";  // 检测到的颜色 R/G/B

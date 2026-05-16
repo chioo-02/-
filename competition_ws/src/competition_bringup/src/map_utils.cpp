@@ -93,9 +93,9 @@ void MapManager::loadObstacles(const YAML::Node& node) {
     obs.y_max = kv.second["y_range"][1].as<double>();
     obs.is_dynamic = (kv.second["type"].as<std::string>() == "dynamic");
     obs.desc = kv.second["desc"].as<std::string>();
-    obs.size_x = 40;
-    obs.size_y = 40;
-    obs.size_z = 160;
+    obs.size_x = 30;
+    obs.size_y = 30;
+    obs.size_z = 180;
     obstacles_.push_back(obs);
   }
 }
@@ -137,6 +137,8 @@ void MapManager::loadSafety(const YAML::Node& node) {
   obstacle_clearance_ = node["obstacle_clearance"].as<double>(30);
   gate_clearance_ = node["gate_clearance"].as<double>(15);
   wall_avoid_dist_ = node["wall_avoid_distance"].as<double>(40);
+  max_altitude_ = node["max_altitude"].as<double>(150);
+  min_takeoff_height_ = node["min_takeoff_height"].as<double>(80);
 }
 
 // ==================== 坐标查询 ====================
