@@ -156,6 +156,11 @@ private:
 
   // 是否启用抓取（可选）
   bool enable_grasp_ = false;
+
+  // 保守模式: 跳过抓取/投放, 走竞速门拿分
+  bool conservative_mode_ = true;
+  bool gate1_passed_ = false;
+  bool gate2_passed_ = false;
 };
 
 }  // namespace mission

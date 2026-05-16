@@ -23,8 +23,9 @@ MissionFSM::MissionFSM(ros::NodeHandle& nh, ros::NodeHandle& pnh)
   set_mode_cli_ = nh_.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
 
   // 读取参数
-  pnh_.param("enable_grasp", enable_grasp_, false);
-  pnh_.param("speed", config_.speed, 0.5);
+  pnh_.param("enable_grasp",    enable_grasp_,    false);
+  pnh_.param("conservative_mode", conservative_mode_, true);
+  pnh_.param("speed",     config_.speed,     0.5);
   pnh_.param("tolerance", config_.tolerance, 0.3);
 }
 
@@ -251,6 +252,13 @@ void MissionFSM::handleDetectColor() {
 
   ROS_INFO("[Mission] 颜色识别输出完成! (任务⑥ +15分)");
 
+  // 保守模式: 直接去B，跳过抓取
+  if (conservative_mode_) {
+    ROS_INFO("[Mission] 保守模式: 跳过抓取，直接导航至B");
+    setState(TaskState::NAV_TO_B, "Conservative: skip grasp, go to B");
+    return;
+  }
+
   // 如果启用了抓取，进入抓取状态
   if (enable_grasp_) {
     setState(TaskState::GRASP_BALL, "Color detected, start grasp");
@@ -298,6 +306,30 @@ void MissionFSM::handleNavToB() {
   ROS_INFO("[Mission] NAV_TO_B — 飞到 B 区域 (%.0f, %.0f)...",
            config_.b_x, config_.b_y);
 
+  // ===== 保守模式: 穿越竞速门1 (+5分) =====
+  if (conservative_mode_ && !gate1_passed_) {
+    // 竞速门1: 中心(125, 410)cm, 开口z=65~135cm, 70×70cm
+    double gate_z = 1.00;  // 穿门高度1m (开口中心)
+    double gx = 1.25, gy = 4.10;  // gate center in meters
+
+    ROS_INFO("[Mission] 保守模式: 穿越竞速门1 (+5分)");
+
+    // Step 1: 飞到门前方(Y-侧)，对齐门洞
+    if (!flyTo(gx, gy - 0.30, gate_z, config_.speed * 0.6, 0.15)) {
+      ROS_WARN("[Mission] 无法对齐竞速门1，跳过穿门");
+      gate1_passed_ = true;  // 标记已尝试
+    } else {
+      // Step 2: 低速穿越门洞
+      ros::Duration(0.5).sleep();  // 短暂稳定
+      if (!flyTo(gx, gy + 0.25, gate_z, config_.speed * 0.4, 0.10)) {
+        ROS_WARN("[Mission] 穿门可能失败");
+      } else {
+        ROS_INFO("[Mission] === 竞速门1穿越成功! +5分 ===");
+      }
+      gate1_passed_ = true;
+    }
+  }
+
   // 经停场地中点（绕开障碍物）
   {
     geometry_msgs::PoseStamped via;
@@ -327,17 +359,30 @@ void MissionFSM::handleNavToB() {
       return;
     }
 
-    ROS_INFO("[Mission] 到达 B 区域, 悬停 6 秒...");
+    ROS_INFO("[Mission] 到达 B 区域, 悬停 %.0f 秒...", config_.hover_duration);
     ros::Duration(config_.hover_duration).sleep();
   }
 
-  ROS_INFO("[Mission] A→B 导航完成! (任务④ +10分)");
+  double bonus = (gate1_passed_ ? 5.0 : 0.0);
+  ROS_INFO("[Mission] A→B 导航完成! (任务④ +10分%s)",
+           bonus > 0 ? ", 穿门+5分" : "");
   setState(TaskState::DROP_AND_OUTPUT, "Arrived at B");
 }
 
 void MissionFSM::handleDropAndOutput() {
   std::string color = config_.detected_color;
   if (color.empty()) color = "G";
+
+  // 保守模式: 跳过投放，直接确认颜色准备降落
+  if (conservative_mode_) {
+    ROS_INFO("[Mission] DROP_AND_OUTPUT — 保守模式: 跳过投放, 颜色=%s, 准备降落", color.c_str());
+    std::cout << "\n============================================" << std::endl;
+    std::cout << "  识别颜色确认: " << color << std::endl;
+    std::cout << "  降落目标区域: " << color << std::endl;
+    std::cout << "============================================\n" << std::endl;
+    setState(TaskState::NAV_TO_LAND, "Conservative: skip drop, go land");
+    return;
+  }
 
   ROS_INFO("[Mission] DROP_AND_OUTPUT — 颜色=%s, 准备投放+降落", color.c_str());
 
@@ -494,13 +539,23 @@ void MissionFSM::handleFinish() {
 void MissionFSM::loadMissionConfig() {
   // 从层级 param 读取 (由 launch 的 rosparam load map.yaml 注入)
   // 飞行参数（直接参数，可被 launch 覆盖）
-  pnh_.param("speed",            config_.speed,            0.3);
-  pnh_.param("tolerance",        config_.tolerance,        0.2);
-  pnh_.param("hover_duration",   config_.hover_duration,   6.0);
-  pnh_.param("detect_timeout",   config_.detect_timeout,   30.0);
+  double default_speed     = conservative_mode_ ? 0.2 : 0.3;
+  double default_tolerance = conservative_mode_ ? 0.4 : 0.2;
+  double default_hover     = conservative_mode_ ? 8.0 : 6.0;
+  double default_detect_to = conservative_mode_ ? 45.0 : 30.0;
+  pnh_.param("speed",            config_.speed,            default_speed);
+  pnh_.param("tolerance",        config_.tolerance,        default_tolerance);
+  pnh_.param("hover_duration",   config_.hover_duration,   default_hover);
+  pnh_.param("detect_timeout",   config_.detect_timeout,   default_detect_to);
   // 规则4+5: 飞行限高 + 悬停最低高度
   pnh_.param("max_altitude",         config_.max_altitude,         1.5);
   pnh_.param("min_takeoff_height",   config_.min_takeoff_height,   0.8);
+
+  if (conservative_mode_) {
+    enable_grasp_ = false;  // 保守模式强制跳过抓取
+    ROS_INFO("[Mission] 保守模式: 速度=%.1fm/s 容差=%.1fm 悬停=%.0fs 不抓取",
+             config_.speed, config_.tolerance, config_.hover_duration);
+  }
 
   auto readWP = [&](const std::string& path, double& x, double& y, double& z) {
     pnh_.param(path + "/x", x, x);
