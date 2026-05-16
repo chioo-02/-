@@ -46,5 +46,12 @@ Thumbs.db
 # ROS
 *.bag
 
+# Node.js
+node_modules/
+package-lock.json
+
+# EGO-Planner config override (track our competition params)
+!Fast-Drone-250-master/Fast-Drone-250-master/src/planner/plan_manage/launch/single_run_in_exp.launch
+
 # Logs
 *.log

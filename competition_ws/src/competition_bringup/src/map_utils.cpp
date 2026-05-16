@@ -119,11 +119,12 @@ void MapManager::loadGates(const YAML::Node& node) {
 void MapManager::loadWalls(const YAML::Node& node) {
   walls_.clear();
   for (const auto& kv : node) {
-    const auto& w = kv.second();
+    const auto& w = kv.second;
     WallSegment ws;
     ws.along = w["along"].as<std::string>();
-    ws.x_min = w["x_range"][0].as<double>();
-    ws.x_max = w["x_range"][1].as<double>();
+    // x could be a single value or a range
+    ws.x_min = w["x_range"] ? w["x_range"][0].as<double>() : w["x"].as<double>();
+    ws.x_max = w["x_range"] ? w["x_range"][1].as<double>() : w["x"].as<double>();
     // y could be a single value or a range
     ws.y_min = w["y_range"] ? w["y_range"][0].as<double>() : w["y"].as<double>();
     ws.y_max = w["y_range"] ? w["y_range"][1].as<double>() : w["y"].as<double>();
